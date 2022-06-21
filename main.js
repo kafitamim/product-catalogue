@@ -19,20 +19,28 @@ formElm.addEventListener("submit", (evt) => {
   }
 
   const id = products.length;
-  products.push({
+  const product = {
     id: id,
     name: nameValue,
     price: priceValue,
-  });
+  };
+  products.push(product);
 
   addItemToUI(id, nameValue, priceValue);
+  addItemToStorage(product);
 });
 
 addListItem.addEventListener("click", (evt) => {
   if (evt.target.classList.contains("delete-item")) {
     const id = getItemId(evt.target);
+    //remove from UI
     removeItemFromUI(id);
+    //remove from array or temporary store
     removeItemFromArr(id);
+
+    // remove data from local storage (browser storage)
+
+    removeProductsFromStorage(id);
   }
 });
 
@@ -40,9 +48,20 @@ function removeItemFromUI(id) {
   document.querySelector(`.item-${id}`).remove();
 }
 
+function updateAfterRemove(products, id) {
+  return products.filter((product) => product.id !== id);
+}
+
 function removeItemFromArr(id) {
-  const newProductArr = products.filter((product) => product.id !== id);
+  const newProductArr = updateAfterRemove(products, id);
   products = newProductArr;
+}
+
+function removeProductsFromStorage(id) {
+  const products = JSON.parse(localStorage.getItem("productStore"));
+  //filter
+  const productsAfterRemove = updateAfterRemove(products, id);
+  localStorage.setItem("productStore", JSON.stringify(productsAfterRemove));
 }
 
 function getItemId(elem) {
@@ -60,6 +79,19 @@ function addItemToUI(id, nameValue, priceValue) {
   clearInputValue();
 }
 
+/// add data in local storage
+function addItemToStorage(product) {
+  let products;
+  if (localStorage.getItem("productStore")) {
+    products = JSON.parse(localStorage.getItem("productStore"));
+    products.push(product);
+    localStorage.setItem("productStore", JSON.stringify(products));
+  } else {
+    products = [];
+    products.push(product);
+    localStorage.setItem("productStore", JSON.stringify(products));
+  }
+}
 function clearInputValue() {
   nameElm.value = "";
   priceElm.value = "";
@@ -71,7 +103,7 @@ function validateResult(name, price) {
     isError = true;
     return isError;
   }
-  if (!price || Number(price) <= 0) {
+  if (!price || isNaN(price) || Number(price) <= 0) {
     isError = true;
     return isError;
   }
@@ -106,3 +138,11 @@ function showfilterArr(filteredArr) {
     addListItem.insertAdjacentHTML("afterbegin", htmlElm);
   });
 }
+
+document.addEventListener("DOMContentLoaded", (e) => {
+  if (localStorage.getItem("productStore")) {
+    const products = JSON.parse(localStorage.getItem("productStore"));
+    showfilterArr(products);
+    console.log(products);
+  }
+});
