@@ -79,19 +79,6 @@ function addItemToUI(id, nameValue, priceValue) {
   clearInputValue();
 }
 
-/// add data in local storage
-function addItemToStorage(product) {
-  let products;
-  if (localStorage.getItem("productStore")) {
-    products = JSON.parse(localStorage.getItem("productStore"));
-    products.push(product);
-    localStorage.setItem("productStore", JSON.stringify(products));
-  } else {
-    products = [];
-    products.push(product);
-    localStorage.setItem("productStore", JSON.stringify(products));
-  }
-}
 function clearInputValue() {
   nameElm.value = "";
   priceElm.value = "";
@@ -137,6 +124,20 @@ function showfilterArr(filteredArr) {
 
     addListItem.insertAdjacentHTML("afterbegin", htmlElm);
   });
+}
+
+/// add data in local storage
+function addItemToStorage(product) {
+  let products;
+  if (localStorage.getItem("productStore")) {
+    products = JSON.parse(localStorage.getItem("productStore"));
+    products.push(product);
+    localStorage.setItem("productStore", JSON.stringify(products));
+  } else {
+    products = [];
+    products.push(product);
+    localStorage.setItem("productStore", JSON.stringify(products));
+  }
 }
 
 document.addEventListener("DOMContentLoaded", (e) => {
